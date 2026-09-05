@@ -11,7 +11,7 @@ export const site = {
   /** ⚠ PLACEHOLDER — set to your real production domain (no trailing slash). */
   url: "https://elevarefoundry.com",
   tagline: "Your operations, one floor up.",
-  email: "hello@elevarefoundry.com", // ⚠ PLACEHOLDER
+  email: "elevarefoundry@gmail.com",
   /** ⚠ PLACEHOLDER — your real booking link (Cal.com, Calendly, etc.). */
   bookingUrl: "#book",
 
