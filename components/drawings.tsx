@@ -204,11 +204,11 @@ export function CaseSchematic() {
       </defs>
 
       <text className="t-red d-fade sc-label" x="20" y="16">BEFORE</text>
-      <text className="t-blue d-fade sc-label" x="392" y="16">AFTER</text>
+      <text className="t-blue d-fade sc-label sc-label--after" x="392" y="16">AFTER</text>
       <line className="dim d-fade sc-divider" x1="360" y1="24" x2="360" y2="200" />
 
       {/* BEFORE — the tangle */}
-      <g className="red sc-tangle" markerEnd="url(#arRed)">
+      <g className="red d-fade sc-tangle" markerEnd="url(#arRed)">
         <path className="d-draw" pathLength="1" d="M98 54 L146 48" />
         <path className="d-draw" pathLength="1" d="M228 48 L244 68" />
         <path className="d-draw" pathLength="1" d="M246 88 C182 104 140 112 108 130" />
@@ -245,7 +245,7 @@ export function CaseSchematic() {
       </g>
 
       {/* AFTER — one line */}
-      <g className="blue sc-flow" markerEnd="url(#arBlue)">
+      <g className="blue d-fade sc-flow" markerEnd="url(#arBlue)">
         <path className="d-draw" pathLength="1" d="M464 103 L474 103" />
         <path className="d-draw" pathLength="1" d="M548 103 L558 103" />
         <path className="d-draw" pathLength="1" d="M632 103 L642 103" />

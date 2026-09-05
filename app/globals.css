@@ -627,6 +627,10 @@ a{color:var(--datum-ink)}
      replaces it. Red finishes before blue starts — that gap is the point. */
   :root[data-motion="on"] .schematic.in-view .sc-label     { animation-delay:0s }
   :root[data-motion="on"] .schematic.in-view .sc-before    { animation-delay:.15s }
+  /* the arrowheads are markers, and a marker paints even on a path that is
+     still fully dashed out — so the group carrying them fades in too, just
+     before its first path starts drawing. */
+  :root[data-motion="on"] .schematic.in-view .sc-tangle    { animation-delay:.3s }
   :root[data-motion="on"] .schematic.in-view .sc-tangle .d-draw:nth-of-type(1){ animation-delay:.35s }
   :root[data-motion="on"] .schematic.in-view .sc-tangle .d-draw:nth-of-type(2){ animation-delay:.5s }
   :root[data-motion="on"] .schematic.in-view .sc-tangle .d-draw:nth-of-type(3){ animation-delay:.65s }
@@ -636,10 +640,114 @@ a{color:var(--datum-ink)}
   :root[data-motion="on"] .schematic.in-view .sc-before-dim{ animation-delay:1.3s }
   :root[data-motion="on"] .schematic.in-view .sc-divider   { animation-delay:1.5s }
   :root[data-motion="on"] .schematic.in-view .sc-after     { animation-delay:1.7s }
+  :root[data-motion="on"] .schematic.in-view .sc-flow      { animation-delay:1.85s }
   :root[data-motion="on"] .schematic.in-view .sc-flow .d-draw:nth-of-type(1){ animation-delay:1.9s }
   :root[data-motion="on"] .schematic.in-view .sc-flow .d-draw:nth-of-type(2){ animation-delay:2.02s }
   :root[data-motion="on"] .schematic.in-view .sc-flow .d-draw:nth-of-type(3){ animation-delay:2.14s }
   :root[data-motion="on"] .schematic.in-view .sc-after-dim { animation-delay:2.3s }
+
+  /* ------------------------------- FIG. 05 · schematic, scroll-linked ---
+     Where the browser can drive an animation from scroll position, the
+     sequence above stops being a timed one-shot and becomes something you
+     operate: the tangle accumulates as you scroll into the figure, and the
+     clean line replaces it as you keep going. Scroll back and it un-draws,
+     which is the point — the argument is reversible, so you can re-read it.
+
+     The timeline is the figure's own view progress. `cover` runs from the
+     moment the plate's top crosses the bottom of the viewport (0%) to the
+     moment its bottom clears the top (100%); the figure is fully on screen
+     from roughly 26% to 74%, so the whole sequence is spent between 22% and
+     66% and finishes while it is still comfortably in the middle of the
+     screen. Every rule below restates the `.in-view` selector's shape so it
+     wins on source order and zeroes the timed delay it would otherwise
+     inherit — `animation-range` is the delay now.
+
+     Browsers without scroll-driven animations never enter this block and keep
+     the IntersectionObserver one-shot above. Both paths are still inside
+     prefers-reduced-motion: no-preference and still gated on data-motion. */
+  @supports (animation-timeline:view()){
+
+    :root[data-motion="on"] .case-plate{ view-timeline:--fig05 block }
+
+    /* Named, not gated on .in-view: the drawing must reveal itself from the
+       timeline alone, or a figure whose observer never fires stays blank. */
+    :root[data-motion="on"] .case-plate .schematic .d-fade{
+      animation-name:dFade;
+      animation-duration:auto;
+      animation-timing-function:linear;
+      animation-fill-mode:both;
+      animation-delay:0s;
+      animation-timeline:--fig05;
+    }
+    :root[data-motion="on"] .case-plate .schematic .d-draw{
+      animation-name:dDraw;
+      animation-duration:auto;
+      animation-timing-function:linear;
+      animation-fill-mode:both;
+      animation-delay:0s;
+      animation-timeline:--fig05;
+    }
+
+    /* the mess accumulates */
+    :root[data-motion="on"] .case-plate .schematic .sc-label{
+      animation-delay:0s; animation-range:cover 22% cover 26%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-before{
+      animation-delay:0s; animation-range:cover 24% cover 30%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-tangle{
+      animation-delay:0s; animation-range:cover 27% cover 29%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(1){
+      animation-delay:0s; animation-range:cover 28% cover 32%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(2){
+      animation-delay:0s; animation-range:cover 31% cover 35%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(3){
+      animation-delay:0s; animation-range:cover 34% cover 38%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(4){
+      animation-delay:0s; animation-range:cover 37% cover 41%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(5){
+      animation-delay:0s; animation-range:cover 40% cover 44%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-loop{
+      animation-delay:0s; animation-range:cover 43% cover 47%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-before-dim{
+      animation-delay:0s; animation-range:cover 45% cover 50%;
+    }
+
+    /* the gap — red is finished before blue starts */
+    :root[data-motion="on"] .case-plate .schematic .sc-divider{
+      animation-delay:0s; animation-range:cover 49% cover 53%;
+    }
+
+    /* the clean line replaces it */
+    :root[data-motion="on"] .case-plate .schematic .sc-label--after{
+      animation-delay:0s; animation-range:cover 52% cover 55%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-after{
+      animation-delay:0s; animation-range:cover 53% cover 57%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-flow{
+      animation-delay:0s; animation-range:cover 55% cover 56%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-flow .d-draw:nth-of-type(1){
+      animation-delay:0s; animation-range:cover 56% cover 58%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-flow .d-draw:nth-of-type(2){
+      animation-delay:0s; animation-range:cover 58% cover 60%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-flow .d-draw:nth-of-type(3){
+      animation-delay:0s; animation-range:cover 60% cover 62%;
+    }
+    :root[data-motion="on"] .case-plate .schematic .sc-after-dim{
+      animation-delay:0s; animation-range:cover 62% cover 66%;
+    }
+  }
 }
 
 @keyframes dDraw  { from{ stroke-dashoffset:1 } to{ stroke-dashoffset:0 } }
