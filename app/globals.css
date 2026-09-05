@@ -640,15 +640,31 @@ a{color:var(--datum-ink)}
   :root[data-motion="on"] [data-animate] .d-grow{ transform:scaleX(0) }
   :root[data-motion="on"] [data-animate="lever"] .lv-arm{ transform:rotate(11.3deg) }
 
-  /* --- the run --- */
+  /* --- the run ---
+     Longhands, not the `animation` shorthand, and this matters: the shorthand
+     resets animation-range and animation-timeline to their initial values as
+     a side effect. It sits at four classes of weight, so it silently beat the
+     scroll ranges further down the file for any of them written at less —
+     which is how FIG. 04's week marks ended up on `normal` and appearing half
+     a section early. Setting only what these rules mean to set leaves the
+     scroll-driven block below free to set the rest at any weight. */
   :root[data-motion="on"] [data-animate].in-view .d-draw{
-    animation:dDraw .8s cubic-bezier(.65,0,.35,1) forwards;
+    animation-name:dDraw;
+    animation-duration:.8s;
+    animation-timing-function:cubic-bezier(.65,0,.35,1);
+    animation-fill-mode:forwards;
   }
   :root[data-motion="on"] [data-animate].in-view .d-fade{
-    animation:dFade .5s ease forwards;
+    animation-name:dFade;
+    animation-duration:.5s;
+    animation-timing-function:ease;
+    animation-fill-mode:forwards;
   }
   :root[data-motion="on"] [data-animate].in-view .d-grow{
-    animation:dGrow .7s cubic-bezier(.65,0,.35,1) forwards;
+    animation-name:dGrow;
+    animation-duration:.7s;
+    animation-timing-function:cubic-bezier(.65,0,.35,1);
+    animation-fill-mode:forwards;
   }
 
   /* ---------------------------------------------------- FIG. 01 · lever ---
@@ -717,21 +733,19 @@ a{color:var(--datum-ink)}
      clean line replaces it as you keep going. Scroll back and it un-draws,
      which is the point — the argument is reversible, so you can re-read it.
 
-     The timeline is the figure's own view progress. `cover` runs from the
-     moment the plate's top crosses the bottom of the viewport (0%) to the
-     moment its bottom clears the top (100%). Every rule below restates the
-     `.in-view` selector's shape so it wins on source order and zeroes the
-     timed delay it would otherwise inherit — `animation-range` is the delay
-     now.
+     A drawing's timeline is its own view progress. `cover` runs from the
+     moment its top crosses the bottom of the viewport (0%) to the moment its
+     bottom clears the top (100%). Every rule below restates the `.in-view`
+     selector's shape so it wins on source order and zeroes the timed delay it
+     would otherwise inherit — `animation-range` is the delay now.
 
-     Which element the timeline is measured on matters more than it looks.
-     Below the fold width it is the plate, which scrolls normally. Above it,
-     the plate is pinned for the stepped read, and a pinned box's progress
-     through the scrollport is no longer a clean function of scroll — measured
-     on it, the reveal crawls and was still drawing itself three steps into
-     the read. So in the fold the timeline is handed to the brief, which sits
-     directly above the figure, is always in normal flow, and whose progress
-     depends on nothing but viewport height.
+     FIG. 05 is the one figure that cannot measure itself. Above the fold
+     width its plate is pinned for the stepped read, and a pinned box's
+     progress through the scrollport is no longer a clean function of scroll —
+     measured on it, the reveal crawls and was still drawing itself three
+     steps into the read. So in the fold the timeline is handed to the brief,
+     which sits directly above the figure, is always in normal flow, and whose
+     progress depends on nothing but viewport height.
 
      Either way the sequence is spent between cover 13% and 46.5%, which puts
      it in the same place on screen for both: it starts as the figure enters
@@ -744,34 +758,60 @@ a{color:var(--datum-ink)}
      prefers-reduced-motion: no-preference and still gated on data-motion. */
   @supports (animation-timeline:view()){
 
-    :root[data-motion="on"] .case-plate{ view-timeline:--fig05 block }
+    /* ---- every drawing draws itself from its own scroll position -------
+       One exception, and it is not an oversight: the lever is on screen when
+       the page opens. There is no scroll to drive it, so a scroll timeline
+       would hand the reader a finished drawing and no animation at all. It
+       keeps the timed one-shot, which is the right mechanism for something
+       above the fold. Everything below the fold is drawn by scrolling. */
+    :root[data-motion="on"] [data-animate]:not(.lever){ view-timeline:--fig block }
 
-    /* In the fold the plate pins, so measure the brief instead and publish
-       the timeline to the whole fold — the drawing is not an ancestor of the
-       brief, so it needs timeline-scope to see it. */
-    @media(min-width:1360px){
-      :root[data-motion="on"] .case-fold { timeline-scope:--fig05 }
-      :root[data-motion="on"] .case-plate{ view-timeline:none }
-      :root[data-motion="on"] .case-brief{ view-timeline:--fig05 block }
-    }
-
-    /* Named, not gated on .in-view: the drawing must reveal itself from the
-       timeline alone, or a figure whose observer never fires stays blank. */
-    :root[data-motion="on"] .case-plate .schematic .d-fade{
+    /* Named here rather than inherited from the .in-view rules, because a
+       drawing must reveal itself from the timeline alone — a figure whose
+       observer never fires would otherwise stay blank. Later in the source
+       than those rules and the same weight, so it wins the shorthand. */
+    :root[data-motion="on"] [data-animate]:not(.lever) .d-fade{
       animation-name:dFade;
       animation-duration:auto;
       animation-timing-function:linear;
       animation-fill-mode:both;
       animation-delay:0s;
-      animation-timeline:--fig05;
+      animation-timeline:--fig;
     }
-    :root[data-motion="on"] .case-plate .schematic .d-draw{
+    :root[data-motion="on"] [data-animate]:not(.lever) .d-draw{
       animation-name:dDraw;
       animation-duration:auto;
       animation-timing-function:linear;
       animation-fill-mode:both;
       animation-delay:0s;
-      animation-timeline:--fig05;
+      animation-timeline:--fig;
+    }
+    :root[data-motion="on"] [data-animate]:not(.lever) .d-grow{
+      animation-name:dGrow;
+      animation-duration:auto;
+      animation-timing-function:linear;
+      animation-fill-mode:both;
+      animation-delay:0s;
+      animation-timeline:--fig;
+    }
+
+    /* -------------------------------------------- FIG. 04 · timeline ---
+       Four bars that extend as you scroll, then the week marks land. The
+       bars overlap by two thirds, so the row builds as one gesture rather
+       than four separate ones. */
+    :root[data-motion="on"] .timeline .d-grow:nth-of-type(1){ animation-delay:0s; animation-range:cover 18% cover 32% }
+    :root[data-motion="on"] .timeline .d-grow:nth-of-type(2){ animation-delay:0s; animation-range:cover 22% cover 36% }
+    :root[data-motion="on"] .timeline .d-grow:nth-of-type(3){ animation-delay:0s; animation-range:cover 26% cover 40% }
+    :root[data-motion="on"] .timeline .d-grow:nth-of-type(4){ animation-delay:0s; animation-range:cover 30% cover 44% }
+    :root[data-motion="on"] .timeline .tl-marks             { animation-delay:0s; animation-range:cover 42% cover 48% }
+
+    /* In the fold the plate pins, so measure the brief instead and publish
+       the timeline to the whole fold — the drawing is not an ancestor of the
+       brief, so it needs timeline-scope to see it. */
+    @media(min-width:1360px){
+      :root[data-motion="on"] .case-fold { timeline-scope:--fig }
+      :root[data-motion="on"] .case-plate .schematic{ view-timeline:none }
+      :root[data-motion="on"] .case-brief{ view-timeline:--fig block }
     }
 
     /* the mess accumulates */
@@ -833,12 +873,95 @@ a{color:var(--datum-ink)}
     :root[data-motion="on"] .case-plate .schematic .sc-after-dim{
       animation-delay:0s; animation-range:cover 44% cover 46.5%;
     }
+
+    /* ===================================================================
+       THE SHEET ITSELF — every section, not just the figures.
+
+       The drawings were the only things on this page that knew you were
+       scrolling. Everything between them arrived already finished, which
+       made the animated figures read as three set pieces on a static site
+       rather than one document that responds to being read.
+
+       So every structural block gets the same small move — 14px up, into
+       opacity — tied to its own position rather than a timer. `view()`
+       with no name means each element is measured on itself, so a list of
+       five rows staggers itself by geometry: the second row is one row
+       further down the page, so it arrives one row later. No delays to
+       keep in sync, and it stays correct at any viewport height.
+
+       Horizontal groups are the exception — four cards side by side all
+       enter at the same instant — so those get their stagger from an
+       offset range per column, left to right.
+
+       One move, one distance, one curve, everywhere. The restraint is the
+       point: this should register as the page being alive, not as a page
+       that animates.
+
+       Anything already on screen when the page opens is past its range and
+       renders finished, which is why the hero needs no special case.
+       =================================================================== */
+    :root[data-motion="on"] .sec-head,
+    :root[data-motion="on"] .stats div,
+    :root[data-motion="on"] .loads li,
+    :root[data-motion="on"] .parts .part,
+    :root[data-motion="on"] .steps .step,
+    :root[data-motion="on"] .case-head,
+    :root[data-motion="on"] .case-figures div,
+    :root[data-motion="on"] .tiers .tier,
+    :root[data-motion="on"] .about > div,
+    :root[data-motion="on"] .book-grid > *,
+    :root[data-motion="on"] .book-list li,
+    :root[data-motion="on"] .foot-plate > div,
+    :root[data-motion="on"] .foot-main > *{
+      animation-name:dRise;
+      animation-duration:auto;
+      animation-timing-function:cubic-bezier(.33,0,.2,1);
+      animation-fill-mode:both;
+      animation-delay:0s;
+      animation-timeline:view();
+      animation-range:cover 8% cover 38%;
+    }
+
+    /* the sweep across a row of columns */
+    :root[data-motion="on"] .stats div:nth-child(2),
+    :root[data-motion="on"] .parts .part:nth-child(2),
+    :root[data-motion="on"] .steps .step:nth-child(2),
+    :root[data-motion="on"] .case-figures div:nth-child(2),
+    :root[data-motion="on"] .tiers .tier:nth-child(2),
+    :root[data-motion="on"] .foot-plate > div:nth-child(2),
+    :root[data-motion="on"] .foot-main > *:nth-child(2){
+      animation-range:cover 11% cover 41%;
+    }
+    :root[data-motion="on"] .stats div:nth-child(3),
+    :root[data-motion="on"] .parts .part:nth-child(3),
+    :root[data-motion="on"] .steps .step:nth-child(3),
+    :root[data-motion="on"] .case-figures div:nth-child(3),
+    :root[data-motion="on"] .tiers .tier:nth-child(3),
+    :root[data-motion="on"] .foot-plate > div:nth-child(3),
+    :root[data-motion="on"] .foot-main > *:nth-child(3){
+      animation-range:cover 14% cover 44%;
+    }
+    :root[data-motion="on"] .stats div:nth-child(n+4),
+    :root[data-motion="on"] .parts .part:nth-child(n+4),
+    :root[data-motion="on"] .steps .step:nth-child(n+4),
+    :root[data-motion="on"] .case-figures div:nth-child(n+4),
+    :root[data-motion="on"] .tiers .tier:nth-child(n+4),
+    :root[data-motion="on"] .foot-plate > div:nth-child(n+4),
+    :root[data-motion="on"] .foot-main > *:nth-child(n+4){
+      animation-range:cover 17% cover 47%;
+    }
+
+    /* The case brief carries FIG. 05's timeline in the fold. Giving it a
+       reveal of its own as well would mean measuring the element the
+       schematic is timed against while it is mid-move — leave it still. */
+    :root[data-motion="on"] .case-head{ animation-range:cover 6% cover 30% }
   }
 }
 
 @keyframes dDraw  { from{ stroke-dashoffset:1 } to{ stroke-dashoffset:0 } }
 @keyframes dFade  { from{ opacity:0 }          to{ opacity:1 } }
 @keyframes dGrow  { from{ transform:scaleX(0) } to{ transform:scaleX(1) } }
+@keyframes dRise  { from{ opacity:0; transform:translateY(14px) } to{ opacity:1; transform:none } }
 @keyframes dLift  { from{ transform:rotate(11.3deg) } to{ transform:rotate(0deg) } }
 @keyframes dStrike{
   from{ opacity:0; transform:translateY(-9px) }
