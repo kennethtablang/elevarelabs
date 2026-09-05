@@ -15,8 +15,12 @@ export default function Motion() {
     const root = document.documentElement;
     root.dataset.motion = "on";
 
+    /* The appendix sheets carry no drawings, so there is nothing here to
+       hide and un-hide — but data-motion="on" is still what turns on the
+       scroll-driven reveals for the sheet itself, and the preference can
+       still change mid-session. So set the flag and keep the listener; only
+       the observer and its failsafe are conditional on there being figures. */
     const targets = Array.from(document.querySelectorAll("[data-animate]"));
-    if (targets.length === 0) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -37,10 +41,12 @@ export default function Motion() {
        gets focused, an observer that never delivers — reveal everything anyway
        after a few seconds. Losing the animation is fine; losing the drawing is
        not. */
-    const failsafe = window.setTimeout(() => {
-      targets.forEach((el) => el.classList.add("in-view"));
-      observer.disconnect();
-    }, 5000);
+    const failsafe = targets.length
+      ? window.setTimeout(() => {
+          targets.forEach((el) => el.classList.add("in-view"));
+          observer.disconnect();
+        }, 5000)
+      : 0;
 
     /* If someone turns on reduced motion mid-session, stop hiding anything. */
     const onPrefChange = (e: MediaQueryListEvent) => {

@@ -13,10 +13,14 @@ import type { LegalDoc } from "@/content/legal";
 export default function LegalSheet({ doc }: { doc: LegalDoc }) {
   return (
     <div className="frame">
+      {/* The accessibility statement promises a skip link first in the tab
+          order. It has to exist on the page making the promise. */}
+      <a className="skip" href="#main">Skip to content</a>
+
       <Nav />
 
       <main id="main">
-        <Section id="doc" fig={doc.fig}>
+        <Section id="doc" fig={doc.fig} className="doc-sheet">
           <div className="sec-head">
             <span className="label">{doc.eyebrow}</span>
             <h1>{doc.title}</h1>

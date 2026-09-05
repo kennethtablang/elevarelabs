@@ -468,6 +468,11 @@ a{color:var(--datum-ink)}
 }
 .doc-block dd{margin:0;font-size:14.5px;line-height:1.5;color:var(--graphite-2)}
 
+/* The rail draws a reading rule over its own right-hand hairline (see the
+   motion block). Positioned here, with the rest of the layout, so the box it
+   is measured against does not depend on whether motion is running. */
+.doc-sheet .sec-rail{position:relative}
+
 .doc{border-top:1px solid var(--rule)}
 .doc-sec{
   display:grid;grid-template-columns:74px minmax(0,1fr);gap:22px;
@@ -954,8 +959,9 @@ a{color:var(--datum-ink)}
     :root[data-motion="on"] .about > div,
     :root[data-motion="on"] .book-grid > *,
     :root[data-motion="on"] .book-list li,
-    :root[data-motion="on"] .foot-plate > div,
-    :root[data-motion="on"] .foot-main > *{
+    :root[data-motion="on"] .doc-block > div,
+    :root[data-motion="on"] .doc-sec,
+    :root[data-motion="on"] .doc-sheet .dwg-cap{
       animation-name:dRise;
       animation-duration:auto;
       animation-timing-function:cubic-bezier(.33,0,.2,1);
@@ -971,8 +977,7 @@ a{color:var(--datum-ink)}
     :root[data-motion="on"] .steps .step:nth-child(2),
     :root[data-motion="on"] .case-figures div:nth-child(2),
     :root[data-motion="on"] .tiers .tier:nth-child(2),
-    :root[data-motion="on"] .foot-plate > div:nth-child(2),
-    :root[data-motion="on"] .foot-main > *:nth-child(2){
+    :root[data-motion="on"] .doc-block > div:nth-child(2){
       animation-range:cover 11% cover 41%;
     }
     :root[data-motion="on"] .stats div:nth-child(3),
@@ -980,17 +985,14 @@ a{color:var(--datum-ink)}
     :root[data-motion="on"] .steps .step:nth-child(3),
     :root[data-motion="on"] .case-figures div:nth-child(3),
     :root[data-motion="on"] .tiers .tier:nth-child(3),
-    :root[data-motion="on"] .foot-plate > div:nth-child(3),
-    :root[data-motion="on"] .foot-main > *:nth-child(3){
+    :root[data-motion="on"] .doc-block > div:nth-child(3){
       animation-range:cover 14% cover 44%;
     }
     :root[data-motion="on"] .stats div:nth-child(n+4),
     :root[data-motion="on"] .parts .part:nth-child(n+4),
     :root[data-motion="on"] .steps .step:nth-child(n+4),
     :root[data-motion="on"] .case-figures div:nth-child(n+4),
-    :root[data-motion="on"] .tiers .tier:nth-child(n+4),
-    :root[data-motion="on"] .foot-plate > div:nth-child(n+4),
-    :root[data-motion="on"] .foot-main > *:nth-child(n+4){
+    :root[data-motion="on"] .tiers .tier:nth-child(n+4){
       animation-range:cover 17% cover 47%;
     }
 
@@ -998,12 +1000,119 @@ a{color:var(--datum-ink)}
        reveal of its own as well would mean measuring the element the
        schematic is timed against while it is mid-move — leave it still. */
     :root[data-motion="on"] .case-head{ animation-range:cover 6% cover 30% }
+
+    /* ------------------------------------------------------- the footer -
+       The footer cannot use the range above, and the reason is geometric
+       rather than a matter of taste.
+
+       `cover` spans the element's height PLUS a viewport height: it runs
+       from the element's top touching the bottom of the screen to its
+       bottom clearing the top. Reaching 38% of that means scrolling most of
+       a screen after the element first appears — fine in the middle of a
+       document, where there is always more below. The footer is the last
+       thing on the page by definition, so that scroll does not exist. It
+       froze partway: the columns sat at 64-94% opacity and a few pixels
+       low, permanently, and the further right the column the worse it was,
+       because the stagger pushed its range further out of reach. On a page
+       as short as the 404 it barely started.
+
+       `entry` is the range that cannot run out. It spans the element's own
+       height — from its top touching the bottom of the screen to its bottom
+       touching the bottom of the screen — and scrolling a document to its
+       end necessarily brings every element in it fully above that line. So
+       a range ending at or before `entry 100%` is guaranteed to finish, on
+       every page at every viewport height. That is the invariant here; keep
+       anything added to the footer inside it.
+
+       Measured on the footer as a whole rather than on each cell, which is
+       what `--foot` is for. Self-measurement would tie each cell's travel
+       to its own height, and the plate cells are short enough that the move
+       would snap. Against the whole title block every cell gets the same
+       unhurried distance, and the stagger comes from where each cell's
+       range sits in that one timeline: the plate first, then the columns
+       left to right, all of it finished well before the page bottom. */
+    /* The same reachability problem, one element short of the footer.
+       Whatever sits last in a document has only the footer's height of
+       scroll beneath it, which on a tall display is less than the 38% of a
+       viewport the range above asks for. It never froze as hard as the
+       footer — measured at 0.98 opacity on a 1560px viewport, 0.81 at
+       2200px — but it is the same bug, so the tail of each page gets the
+       same guaranteed range. Everything between the hero and here keeps the
+       cover range: it has a whole screen of document below it and always
+       finishes. If a new section is ever added after these, move this rule
+       to whatever the new last block is. */
+    :root[data-motion="on"] .book-grid > *,
+    :root[data-motion="on"] .book-list li,
+    :root[data-motion="on"] .doc .doc-sec:last-child,
+    :root[data-motion="on"] .doc-sheet .dwg-cap{
+      animation-range:entry 0% entry 100%;
+    }
+
+    :root[data-motion="on"] .foot{ view-timeline:--foot block }
+    :root[data-motion="on"] .foot-plate > div,
+    :root[data-motion="on"] .foot-main > *{
+      animation-name:dRise;
+      animation-duration:auto;
+      animation-timing-function:cubic-bezier(.33,0,.2,1);
+      animation-fill-mode:both;
+      animation-delay:0s;
+      animation-timeline:--foot;
+      animation-range:entry 0% entry 45%;
+    }
+    :root[data-motion="on"] .foot-plate > div:nth-child(2){ animation-range:entry 4% entry 49% }
+    :root[data-motion="on"] .foot-plate > div:nth-child(3){ animation-range:entry 8% entry 53% }
+    :root[data-motion="on"] .foot-plate > div:nth-child(n+4){ animation-range:entry 12% entry 57% }
+
+    :root[data-motion="on"] .foot-main > *{ animation-range:entry 25% entry 70% }
+    :root[data-motion="on"] .foot-main > *:nth-child(2){ animation-range:entry 29% entry 74% }
+    :root[data-motion="on"] .foot-main > *:nth-child(3){ animation-range:entry 33% entry 78% }
+    :root[data-motion="on"] .foot-main > *:nth-child(4){ animation-range:entry 37% entry 82% }
+    :root[data-motion="on"] .foot-main > *:nth-child(n+5){ animation-range:entry 41% entry 86% }
+
+    /* -------------------------------------------------- appendix sheets -
+       The three documents get the same one move as everything else — each
+       clause rises as you reach it, and because view() measures every
+       element on itself, a forty-clause notice staggers itself by geometry
+       with not one delay to keep in sync.
+
+       The clauses are long, though, and a long document is the one place a
+       reader wants to know how much is left. So the rail's hairline inks in
+       as the sheet is read: the rule that separates the FIG. number from
+       the text is grey ahead of you and blue behind you, which is the same
+       thing the datum colour means everywhere else on the site — the part
+       that has been drawn. It is a progress indicator, not a reveal, which
+       is why it earns a move the restraint above otherwise forbids.
+
+       `contain` is the range that means "while this thing is the thing on
+       screen": it runs from the top of the sheet reaching the top of the
+       viewport to its bottom reaching the bottom, so the line is empty when
+       the document starts and full when it ends. It reads correctly for a
+       sheet shorter than the viewport too, where the range simply becomes
+       the span over which the whole sheet is visible.
+
+       Named rather than view(): the line is drawn by a pseudo-element, and
+       naming the timeline on the rail itself removes any doubt about which
+       box is being measured. */
+    :root[data-motion="on"] .doc-sheet .sec-rail{ view-timeline:--read block }
+    :root[data-motion="on"] .doc-sheet .sec-rail::after{
+      content:"";
+      position:absolute; top:0; bottom:0; right:-1px; width:1px;
+      background:var(--datum);
+      transform:scaleY(0); transform-origin:top;
+      animation-name:dRead;
+      animation-duration:auto;
+      animation-timing-function:linear;
+      animation-fill-mode:both;
+      animation-timeline:--read;
+      animation-range:contain 0% contain 100%;
+    }
   }
 }
 
 @keyframes dDraw  { from{ stroke-dashoffset:1 } to{ stroke-dashoffset:0 } }
 @keyframes dFade  { from{ opacity:0 }          to{ opacity:1 } }
 @keyframes dGrow  { from{ transform:scaleX(0) } to{ transform:scaleX(1) } }
+@keyframes dRead  { from{ transform:scaleY(0) } to{ transform:scaleY(1) } }
 @keyframes dRise  { from{ opacity:0; transform:translateY(14px) } to{ opacity:1; transform:none } }
 @keyframes dLift  { from{ transform:rotate(11.3deg) } to{ transform:rotate(0deg) } }
 @keyframes dStrike{
@@ -1045,6 +1154,7 @@ a{color:var(--datum-ink)}
   .foot-social,.foot-col,.foot-blurb{display:none}
   .sec{grid-template-columns:1fr;border-bottom:1px solid #999;break-inside:avoid}
   .sec-rail{border-right:0;padding:14pt 0 0;align-items:flex-start}
+  .doc-sheet .sec-rail::after{display:none}   /* the reading rule is a screen thing */
   .sec-rail .fig{writing-mode:horizontal-tb;color:#000;font-size:8pt}
   .sec-main{padding:6pt 0 16pt}
   .hero,.book,.part,.tier,.case,.case-head,.stats,.case-figures{background:#fff!important;color:#000!important}

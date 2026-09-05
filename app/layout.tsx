@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Chivo, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { site } from "@/content/site";
+import Motion from "@/components/Motion";
+import SmoothScroll from "@/components/SmoothScroll";
 import "./globals.css";
 
 /* next/font self-hosts these at build time: no render-blocking request to
@@ -149,6 +151,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
           }}
         />
+        {/* Both live here rather than on the home page, because scrolling and
+            revealing are properties of the site, not of one route. The
+            appendix sheets are long documents and were the pages that most
+            wanted an eased wheel; they were also the only ones arriving
+            fully finished. Neither ships anything to look at — see the
+            components for what happens when JS never runs. */}
+        <Motion />
+        <SmoothScroll />
         {children}
       </body>
     </html>

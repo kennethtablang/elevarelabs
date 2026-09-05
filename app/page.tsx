@@ -1,8 +1,6 @@
 import { site } from "@/content/site";
 import Nav from "@/components/Nav";
-import Motion from "@/components/Motion";
 import CaseSteps from "@/components/CaseSteps";
-import SmoothScroll from "@/components/SmoothScroll";
 import Footer from "@/components/Footer";
 import Section from "@/components/Section";
 import {
@@ -17,9 +15,7 @@ export default function Home() {
 
   return (
     <>
-      <Motion />
       <CaseSteps />
-      <SmoothScroll />
       <a className="skip" href="#main">Skip to content</a>
 
       <div className="frame">
