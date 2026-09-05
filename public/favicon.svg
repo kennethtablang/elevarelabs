@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 46">
+  <style>
+    /* SVG favicons honour the browser's colour scheme in Chrome and Firefox,
+       so the mark sits on the right ground in a dark tab strip. */
+    .ground { fill: #E7EAE4; }
+    .ink    { fill: #171A17; stroke: #171A17; }
+    .datum  { fill: #2242C6; }
+    @media (prefers-color-scheme: dark) {
+      .ground { fill: #101720; }
+      .ink    { fill: #E8EEF4; stroke: #E8EEF4; }
+      .datum  { fill: #7DA0FF; }
+    }
+  </style>
+  <rect class="ground" width="46" height="46"/>
+  <line class="ink" x1="6" y1="31" x2="40" y2="19" stroke-width="3" stroke-linecap="round"/>
+  <polygon class="ink" points="23,27 30,40 16,40"/>
+  <rect class="datum" x="32" y="9" width="9" height="9"/>
+</svg>

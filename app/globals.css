@@ -1,0 +1,707 @@
+/* ===========================================================================
+   Elevare Foundry — "Fulcrum" design system
+   The site is a drafting sheet. Blue = the part we install.
+   Red = the load we remove. Everything else is graphite on paper.
+
+   Font families come from next/font (see app/layout.tsx), which self-hosts
+   them — no network round-trip, no layout shift, better Core Web Vitals.
+   =========================================================================== */
+
+:root{
+  /* --- surface --- */
+  --paper:#DFE3DC;        /* the table the sheet sits on */
+  --sheet:#E7EAE4;        /* the drafting sheet itself */
+  --panel:#F5F6F2;        /* raised panels, nav, cards */
+  --panel-hi:#FBFCF9;     /* highest surface */
+  --grid:#DBE0D6;         /* 26px background grid */
+  --rule:#B9BFB4;         /* hairlines, dimension lines, borders */
+  --rule-soft:#CDD2C7;
+
+  /* --- ink ---
+     Every value below clears WCAG AA (4.5:1) on --sheet, the lightest ground
+     any of them sits on. Verified, not eyeballed — if you change one, re-check
+     it before shipping. */
+  --graphite:#171A17;     /* primary text, structural strokes   14.5:1 */
+  --graphite-2:#565C54;   /* body secondary                      5.7:1 */
+  --graphite-3:#636A5F;   /* annotations, dimension text         4.6:1 */
+
+  /* --- the two working colours --- */
+  --datum:#2242C6;        /* primary action, the system we build 6.5:1 */
+  --datum-ink:#16309A;
+  --datum-soft:#DEE4F8;
+  --load:#CE452A;         /* force vectors in drawings — graphics only */
+  --load-ink:#B93B23;     /* the same red, for small text        4.7:1 */
+  --load-soft:#F7E2DC;
+  --on-datum:#FFFFFF;     /* text sitting on a --datum fill */
+
+  /* --- the booking block (FIG. 08), the one inverted section --- */
+  --book-bg:#171A17;
+  --book-hi:#FBFCF9;
+  --book-rule:#3A413A;
+  --book-ghost:#5C645B;
+  --book-fig:#8B938A;
+  --book-label:#9AA396;
+  --book-lede:#AEB5AB;
+  --book-body:#C3C9C0;
+  --book-n:#7C93E8;
+
+  /* --- geometry --- */
+  --unit:26px;            /* the grid module; all spacing is a multiple */
+  --rail:104px;           /* the numbered FIG. rail */
+  --sec-pad:46px;         /* horizontal padding inside every section */
+  --nav-h:64px;
+
+  --f-display:var(--font-chivo),"Helvetica Neue",Arial,sans-serif;
+  --f-text:var(--font-plex-sans),system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:var(--font-plex-mono),ui-monospace,"SF Mono",Menlo,monospace;
+}
+
+/* ===========================================================================
+   DARK — the blueprint.
+   Not an inversion of the sheet: a cyanotype. White lines on a dark blue
+   ground is the older drafting convention, so the brand survives the switch
+   instead of just going grey. Every value below clears AA on --sheet.
+
+   Three states, because the viewer has three: no stamp on <html> means
+   "follow the OS", data-theme="light" and data-theme="dark" mean the person
+   chose. The media query is guarded so an explicit light choice beats a dark
+   OS, and the [data-theme="dark"] block repeats it so the toggle wins the
+   other way. Never style a component inside these blocks — only redefine
+   tokens here, or the un-stamped state renders one theme on the other's ground.
+   =========================================================================== */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#080C12;
+    --sheet:#101720;
+    --panel:#16202B;
+    --panel-hi:#1B2733;
+    --grid:#182634;
+    --rule:#33475C;
+    --rule-soft:#223140;
+
+    --graphite:#E8EEF4;   /* 15.4:1 */
+    --graphite-2:#A8B6C4; /*  8.7:1 */
+    --graphite-3:#8496A6; /*  5.9:1 */
+
+    --datum:#7DA0FF;      /*  7.2:1 */
+    --datum-ink:#A3BEFF;  /*  9.8:1 — lighter on hover, not darker */
+    --datum-soft:#1C2C4C;
+    --load:#F0724F;
+    --load-ink:#FF8E6B;   /*  8.0:1 */
+    --load-soft:#3A1E16;
+    --on-datum:#0A1020;   /*  7.5:1 on --datum */
+
+    --book-bg:#16283D;
+    --book-hi:#F2F7FC;
+    --book-rule:#2C4761;
+    --book-ghost:#456A8C;
+    --book-fig:#8DA2B5;
+    --book-label:#9DB1C4;
+    --book-lede:#B8C6D3;
+    --book-body:#CDD8E2;
+    --book-n:#93B0FF;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#080C12;
+  --sheet:#101720;
+  --panel:#16202B;
+  --panel-hi:#1B2733;
+  --grid:#182634;
+  --rule:#33475C;
+  --rule-soft:#223140;
+
+  --graphite:#E8EEF4;
+  --graphite-2:#A8B6C4;
+  --graphite-3:#8496A6;
+
+  --datum:#7DA0FF;
+  --datum-ink:#A3BEFF;
+  --datum-soft:#1C2C4C;
+  --load:#F0724F;
+  --load-ink:#FF8E6B;
+  --load-soft:#3A1E16;
+  --on-datum:#0A1020;
+
+  --book-bg:#16283D;
+  --book-hi:#F2F7FC;
+  --book-rule:#2C4761;
+  --book-ghost:#456A8C;
+  --book-fig:#8DA2B5;
+  --book-label:#9DB1C4;
+  --book-lede:#B8C6D3;
+  --book-body:#CDD8E2;
+  --book-n:#93B0FF;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{animation:none!important;transition:none!important}
+}
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--graphite);
+  font-family:var(--f-text);
+  font-size:17px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  /* keeps the footer at the bottom on short pages (the 404, mainly) */
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+}
+.frame{flex:1 0 auto}
+
+/* --- the sheet: a gridded page, edge to edge --- */
+.frame{
+  width:100%;
+  background-color:var(--sheet);
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:var(--unit) var(--unit);
+  background-position:-1px -1px;
+  position:relative;
+}
+
+/* ---------------------------------------------------------------- type --- */
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:900;margin:0;text-wrap:balance}
+h1{font-size:clamp(36px,6.1vw,74px);line-height:.97;letter-spacing:-.042em}
+h2{font-size:clamp(27px,3.9vw,46px);line-height:1.02;letter-spacing:-.036em}
+h3{font-size:20px;line-height:1.2;letter-spacing:-.022em;font-weight:700}
+h4{font-size:16px;line-height:1.25;letter-spacing:-.015em;font-weight:700}
+p{margin:0;max-width:66ch}
+a{color:var(--datum-ink)}
+
+.mono{font-family:var(--f-mono)}
+.label{
+  font-family:var(--f-mono);font-size:11px;font-weight:500;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--graphite-3);
+}
+.label--blue{color:var(--datum)}
+.label--red{color:var(--load-ink)}
+.lede{font-size:20px;line-height:1.55;color:var(--graphite-2);max-width:60ch}
+.tnum{font-variant-numeric:tabular-nums}
+
+.skip{
+  position:absolute;left:-9999px;top:0;z-index:99;
+  background:var(--datum);color:var(--on-datum);padding:12px 18px;font-family:var(--f-mono);font-size:12px;
+}
+.skip:focus{left:0}
+:focus-visible{outline:2px solid var(--datum);outline-offset:3px}
+
+/* ----------------------------------------------------------------- nav --- */
+.nav{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:28px;
+  padding:0 30px;height:var(--nav-h);
+  background:var(--panel);
+  border-bottom:1px solid var(--rule);
+}
+.brand{display:flex;align-items:center;gap:11px;margin-right:auto;text-decoration:none;color:var(--graphite)}
+.brand svg{display:block;flex:0 0 auto}
+.brand b{font-family:var(--f-display);font-weight:900;font-size:16px;letter-spacing:-.02em;text-transform:uppercase}
+.nav-links{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+.nav-links a{
+  font-family:var(--f-mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--graphite-2);text-decoration:none;padding:4px 0;border-bottom:1px solid transparent;
+}
+.nav-links a:hover{color:var(--graphite);border-bottom-color:var(--load)}
+/* the section currently in view, marked by the observer in Nav.tsx */
+.nav-links a[aria-current="true"]{color:var(--graphite);border-bottom-color:var(--datum)}
+.nav-toggle{display:none;background:none;border:1px solid var(--rule);padding:7px 11px;cursor:pointer;
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--graphite)}
+
+/* theme switch — a half-filled circle, the drafting symbol for a section cut */
+.theme-toggle{
+  flex:0 0 auto;display:grid;place-items:center;width:34px;height:34px;
+  background:none;border:1px solid var(--rule);cursor:pointer;color:var(--graphite);
+  transition:border-color .15s,color .15s;
+}
+.theme-toggle:hover{border-color:var(--graphite);color:var(--datum)}
+.theme-toggle svg{display:block}
+
+/* --------------------------------------------------------------- buttons - */
+.btn{
+  display:inline-block;text-decoration:none;white-space:nowrap;
+  font-family:var(--f-mono);font-size:11.5px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;
+  padding:13px 20px;border:1px solid transparent;transition:background-color .15s,color .15s;
+}
+.btn--primary{background:var(--datum);color:var(--on-datum);border-color:var(--datum)}
+.btn--primary:hover{background:var(--datum-ink);border-color:var(--datum-ink)}
+.btn--ghost{background:transparent;color:var(--graphite);border-color:var(--graphite)}
+.btn--ghost:hover{background:var(--graphite);color:var(--sheet)}
+.btn--sm{padding:9px 15px;font-size:11px}
+
+/* -------------------------------------------------------------- sections - */
+.sec{
+  display:grid;grid-template-columns:var(--rail) minmax(0,1fr);
+  border-bottom:1px solid var(--rule);
+  scroll-margin-top:var(--nav-h);   /* anchor links clear the sticky nav */
+}
+.sec:last-of-type{border-bottom:0}
+.sec-rail{
+  border-right:1px solid var(--rule);
+  padding:34px 0;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.sec-rail .fig{
+  font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.12em;
+  color:var(--graphite-3);writing-mode:vertical-rl;text-orientation:mixed;
+}
+.sec-rail .tick{width:11px;height:1px;background:var(--rule)}
+.sec-main{padding:52px var(--sec-pad) 60px;min-width:0}
+
+/* Drawings scale with the column but stop before they become billboards. */
+.sec-main > .dwg{max-width:1000px}
+.hero-grid > div:last-child .dwg{max-width:700px;margin-inline:auto}
+
+.sec-head{margin-bottom:34px}
+.sec-head .label{display:block;margin-bottom:12px}
+.sec-head h2{margin-bottom:14px}
+
+/* ----------------------------------------------------------------- hero -- */
+.hero{background:var(--panel-hi)}
+.hero .sec-main{padding-top:56px;padding-bottom:0}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:40px;align-items:center}
+.hero h1{margin-bottom:22px}
+.hero .lede{margin-bottom:30px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.hero-note{font-family:var(--f-mono);font-size:11px;color:var(--graphite-3);letter-spacing:.06em;margin-top:18px;text-wrap:balance}
+
+.stats{
+  display:flex;margin:52px calc(-1 * var(--sec-pad)) 0;
+  border-top:1px solid var(--rule);background:var(--panel);
+}
+.stats div{flex:1;padding:20px 24px;border-right:1px solid var(--rule)}
+.stats div:last-child{border-right:0}
+.stats b{
+  display:block;font-family:var(--f-display);font-weight:900;font-size:30px;
+  letter-spacing:-.035em;color:var(--datum);line-height:1;margin-bottom:7px;
+}
+.stats span{font-family:var(--f-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--graphite-2);line-height:1.5;display:block}
+
+/* --------------------------------------------------------------- drawing - */
+.dwg{display:block;width:100%;height:auto}
+.dwg .st{stroke:var(--graphite);fill:none;stroke-width:1.3;stroke-linecap:round}
+.dwg .st-h{stroke:var(--graphite);fill:none;stroke-width:4.5;stroke-linecap:round}
+.dwg .thin{stroke:var(--rule);fill:none;stroke-width:1}
+.dwg .dim{stroke:var(--graphite-3);fill:none;stroke-width:.9;stroke-dasharray:3 3}
+.dwg .dimline{stroke:var(--graphite-3);fill:none;stroke-width:.9}
+.dwg .blue{stroke:var(--datum);fill:none;stroke-width:1.5}
+.dwg .bluef{fill:var(--datum)}
+.dwg .red{stroke:var(--load);fill:none;stroke-width:1.5}
+.dwg .redf{fill:var(--load)}
+.dwg .gf{fill:var(--graphite)}
+.dwg .sheetf{fill:var(--panel-hi)}
+.dwg text{font-family:var(--f-mono);font-size:9px;fill:var(--graphite-2);letter-spacing:.07em}
+.dwg .t-dim{fill:var(--graphite-3);font-size:8.5px}
+.dwg .t-blue{fill:var(--datum)}
+.dwg .t-red{fill:var(--load-ink)}
+.dwg-cap{
+  font-family:var(--f-mono);font-size:11px;color:var(--graphite-3);
+  letter-spacing:.07em;margin-top:12px;padding-top:10px;border-top:1px solid var(--rule-soft);
+}
+
+/* ------------------------------------------------------------- load list - */
+.loads{border-top:1px solid var(--rule);margin:8px 0 0;padding:0;list-style:none}
+.loads li{
+  display:grid;grid-template-columns:74px minmax(0,1fr) auto;gap:22px;align-items:baseline;
+  padding:19px 0;border-bottom:1px solid var(--rule-soft);
+}
+.loads .pn{font-family:var(--f-mono);font-size:11px;letter-spacing:.09em;color:var(--load-ink)}
+.loads .sym{font-size:17.5px;color:var(--graphite);max-width:82ch}
+.loads .sym em{font-style:normal;color:var(--graphite-2)}
+.loads .cost{font-family:var(--f-mono);font-size:11px;letter-spacing:.07em;color:var(--graphite-3);text-align:right;white-space:nowrap}
+@media(max-width:720px){
+  .loads li{grid-template-columns:1fr;gap:6px}
+  .loads .cost{text-align:left}
+}
+
+/* ------------------------------------------------------------ assemblies - */
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));border:1px solid var(--rule);background:var(--panel)}
+.part{padding:24px 24px 26px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:12px}
+.part:last-child{border-right:0}
+/* these are icons, not drawings — they must not inherit .dwg's width:100% */
+.part .dwg{display:block;width:56px;height:56px;flex:0 0 auto}
+.part h3{margin-top:2px}
+.part p{font-size:15.5px;line-height:1.55;color:var(--graphite-2);max-width:none;flex:1}
+.part .spec{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--graphite-3);padding-top:12px;border-top:1px solid var(--rule-soft)}
+@media(max-width:960px){.part{border-right:0;border-bottom:1px solid var(--rule)}.part:last-child{border-bottom:0}}
+
+/* ---------------------------------------------------------------- method - */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);margin-top:26px}
+.step{padding:22px 22px 26px;border-right:1px solid var(--rule-soft)}
+.step:last-child{border-right:0}
+.step .wk{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;color:var(--datum);display:block;margin-bottom:9px}
+.step h4{margin-bottom:8px}
+.step p{font-size:15px;line-height:1.55;color:var(--graphite-2);max-width:none}
+.step .need{display:block;margin-top:12px;font-family:var(--f-mono);font-size:10.5px;line-height:1.5;color:var(--graphite-3)}
+@media(max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}.step{border-bottom:1px solid var(--rule-soft)}}
+@media(max-width:560px){.steps{grid-template-columns:1fr}.step{border-right:0}}
+
+/* ------------------------------------------------------------- case file - */
+.case{border:1px solid var(--rule);background:var(--panel-hi);margin-bottom:26px}
+.case:last-child{margin-bottom:0}
+.case-head{
+  display:flex;flex-wrap:wrap;gap:16px 26px;align-items:baseline;
+  padding:18px 24px;border-bottom:1px solid var(--rule);background:var(--panel);
+}
+.case-head .id{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;color:var(--load-ink)}
+.case-head h3{margin-right:auto}
+.case-head .meta{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--graphite-3)}
+.case-body{padding:26px 24px 24px}
+.case-brief{color:var(--graphite-2);font-size:16.5px}
+
+/* The case fold. Stacked by default — brief, drawing, caption. Past the fold
+   width the brief and its caption move into a note column on the left and the
+   drawing takes the rest, because a 1040px figure inside a 1555px panel leaves
+   half a metre of blank sheet on the right. The caption bottoms out against
+   the drawing, the way a title block sits under a figure. */
+.case-fold{display:grid;gap:20px}
+.case-fold .dwg-cap{margin-top:0}
+.case-plate{min-width:0}
+.case-plate .dwg{max-width:1180px;margin-inline:auto}
+@media(min-width:1360px){
+  .case-fold{
+    grid-template-columns:minmax(300px,.42fr) minmax(0,1fr);
+    grid-template-rows:auto 1fr;
+    grid-template-areas:"brief plate" "cap plate";
+    column-gap:38px;row-gap:16px;align-items:start;
+  }
+  .case-fold .case-brief{grid-area:brief}
+  .case-fold .case-plate{grid-area:plate}
+  .case-fold .dwg-cap{grid-area:cap;align-self:end}
+}
+.case-figures{display:flex;border:1px solid var(--rule-soft);margin-top:22px;background:var(--panel)}
+.case-figures div{flex:1;padding:15px 18px;border-right:1px solid var(--rule-soft)}
+.case-figures div:last-child{border-right:0}
+.case-figures b{display:block;font-family:var(--f-display);font-weight:900;font-size:23px;letter-spacing:-.03em;line-height:1;margin-bottom:6px}
+.case-figures .was{color:var(--load-ink)}
+.case-figures .now{color:var(--datum)}
+.case-figures span{font-family:var(--f-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--graphite-3)}
+@media(max-width:640px){.case-figures{flex-wrap:wrap}.case-figures div{flex:1 1 50%;border-bottom:1px solid var(--rule-soft)}}
+
+/* ---------------------------------------------------------------- prices - */
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));border:1px solid var(--rule)}
+.tier{padding:26px 24px 28px;border-right:1px solid var(--rule);background:var(--panel);display:flex;flex-direction:column;gap:14px}
+.tier:last-child{border-right:0}
+.tier--lead{background:var(--panel-hi);box-shadow:inset 3px 0 0 var(--datum)}
+.tier .n{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--graphite-3)}
+.tier .amt{font-family:var(--f-display);font-weight:900;font-size:27px;letter-spacing:-.032em;line-height:1.05}
+.tier .amt small{display:block;font-family:var(--f-mono);font-size:10.5px;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:var(--graphite-3);margin-top:7px}
+.tier ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;flex:1}
+.tier li{font-size:15px;line-height:1.5;color:var(--graphite-2);padding-left:17px;position:relative}
+.tier li::before{content:"";position:absolute;left:0;top:9px;width:7px;height:1px;background:var(--datum)}
+@media(max-width:900px){.tier{border-right:0;border-bottom:1px solid var(--rule)}.tier:last-child{border-bottom:0}}
+
+/* ----------------------------------------------------------------- about - */
+.about{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:44px;align-items:start}
+.about p+p{margin-top:16px}
+.about .plate{border:1px solid var(--rule);background:var(--panel);padding:22px 24px}
+.about .plate dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:11px 20px;font-size:15px}
+.about .plate dt{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--graphite-3);padding-top:3px}
+.about .plate dd{margin:0;color:var(--graphite)}
+@media(max-width:860px){.about{grid-template-columns:1fr;gap:28px}}
+
+/* ------------------------------------------------------------------ book - */
+.book{background:var(--book-bg);color:var(--book-hi)}
+.book .sec-rail{border-right-color:var(--book-rule)}
+.book .sec-rail .fig{color:var(--book-fig)}
+.book .sec-rail .tick{background:var(--book-rule)}
+.book h2{color:var(--book-hi);margin:12px 0 14px}
+.book .label{color:var(--book-label)}
+.book .lede{color:var(--book-lede);margin-bottom:28px}
+.book-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:40px;align-items:center}
+.book .btn--ghost{color:var(--book-hi);border-color:var(--book-ghost)}
+.book .btn--ghost:hover{background:var(--book-hi);color:var(--book-bg)}
+.book-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--book-rule)}
+.book-list li{padding:14px 0;border-bottom:1px solid var(--book-rule);display:flex;gap:16px;font-size:15.5px;color:var(--book-body)}
+.book-list .n{font-family:var(--f-mono);font-size:11px;color:var(--book-n);flex:0 0 26px;padding-top:3px}
+@media(max-width:860px){.book-grid{grid-template-columns:1fr;gap:26px}}
+
+/* ---------------------------------------------------------------- footer -
+   A drawing sheet's title block: the plate of facts, the sitemap, the legal
+   strip. Cells run full-bleed with the outer padding carried by the first and
+   last cell, so every rule reaches the edge of the sheet. */
+.foot{border-top:1px solid var(--rule);background:var(--panel)}
+
+/* --- the plate --- */
+.foot-plate{margin:0;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  border-bottom:1px solid var(--rule);
+}
+.foot-plate > div{padding:17px 24px;border-right:1px solid var(--rule-soft);min-width:0}
+.foot-plate > div:first-child{padding-left:var(--sec-pad)}
+.foot-plate > div:last-child{padding-right:var(--sec-pad);border-right:0}
+.foot-plate dt{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--graphite-3);margin-bottom:5px;
+}
+.foot-plate dd{margin:0;font-size:14.5px;line-height:1.4;color:var(--graphite)}
+
+/* --- the sitemap --- */
+.foot-main{
+  display:grid;
+  grid-template-columns:minmax(0,1.7fr) repeat(3,minmax(0,1fr)) minmax(0,1.25fr);
+  gap:40px;
+  padding:44px var(--sec-pad) 42px;
+}
+.foot-brand .brand{margin-bottom:16px}
+.foot-tag{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--graphite-3);margin-bottom:14px;
+}
+.foot-blurb{font-size:15px;line-height:1.55;color:var(--graphite-2);max-width:42ch;margin-bottom:20px}
+
+.foot-social{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.foot-social a{
+  display:inline-block;text-decoration:none;
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--graphite-2);border:1px solid var(--rule);padding:7px 11px;
+  transition:border-color .15s,color .15s;
+}
+.foot-social a:hover{color:var(--datum);border-color:var(--datum)}
+
+.foot-h{
+  font-family:var(--f-mono);font-size:10.5px;font-weight:500;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--graphite-3);margin:0 0 14px;
+}
+.foot-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+/* list links only — an unscoped .foot-col a would out-specify .btn--primary
+   and repaint the contact button's label grey on blue. */
+.foot-col ul a{
+  color:var(--graphite-2);text-decoration:none;font-size:15px;
+  border-bottom:1px solid transparent;transition:color .15s,border-color .15s;
+}
+.foot-col ul a:hover{color:var(--graphite);border-bottom-color:var(--datum)}
+
+.foot-contact address{font-style:normal;display:flex;flex-direction:column;gap:2px;margin:16px 0 20px}
+.foot-contact address span{font-size:14.5px;line-height:1.45;color:var(--graphite-2)}
+
+/* --- the legal strip --- */
+.foot-legal{
+  border-top:1px solid var(--rule-soft);
+  padding:18px var(--sec-pad);
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 26px;
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--graphite-3);
+}
+.foot-legal ul{list-style:none;margin:0 0 0 auto;padding:0;display:flex;flex-wrap:wrap;gap:10px 22px}
+.foot-legal a{color:var(--graphite-2);text-decoration:none}
+.foot-legal a:hover{color:var(--datum-ink)}
+
+@media(max-width:1100px){
+  .foot-main{grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 40px}
+  .foot-brand{grid-column:1 / -1}
+  .foot-plate{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .foot-plate > div:nth-child(2){padding-right:var(--sec-pad);border-right:0}
+  .foot-plate > div:nth-child(3){padding-left:var(--sec-pad)}
+  .foot-plate > div:nth-child(-n+2){border-bottom:1px solid var(--rule-soft)}
+}
+@media(max-width:640px){
+  .foot-main{grid-template-columns:1fr;gap:32px}
+  .foot-plate{grid-template-columns:1fr}
+  .foot-plate > div{padding-left:var(--sec-pad);padding-right:var(--sec-pad);border-right:0;border-bottom:1px solid var(--rule-soft)}
+  .foot-plate > div:last-child{border-bottom:0}
+  .foot-legal ul{margin-left:0}
+}
+
+/* ------------------------------------------------------------ responsive - */
+/* Wide screens: the sheet runs edge to edge, so grow the margins and the
+   rail rather than letting content sprawl against the viewport edge. */
+@media(min-width:1500px){
+  :root{--sec-pad:72px;--rail:124px}
+  .nav{padding:0 46px}
+}
+@media(min-width:1900px){
+  :root{--sec-pad:104px;--rail:140px}
+  .nav{padding:0 64px}
+  .hero h1{font-size:80px}
+}
+@media(min-width:2400px){
+  :root{--sec-pad:140px;--rail:160px}
+  .nav{padding:0 88px}
+}
+
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:28px}
+  .stats{flex-wrap:wrap}
+  .stats div{flex:1 1 100%;border-right:0;border-bottom:1px solid var(--rule)}
+  .stats div:last-child{border-bottom:0}
+}
+@media(max-width:820px){
+  .nav{padding:0 20px;gap:14px}
+  .nav-toggle{display:block}
+  .nav-links{
+    display:none;position:absolute;top:var(--nav-h);left:0;right:0;
+    flex-direction:column;gap:0;background:var(--panel);border-bottom:1px solid var(--rule);
+  }
+  .nav-links.open{display:flex}
+  .nav-links li{border-bottom:1px solid var(--rule-soft)}
+  .nav-links a{display:block;padding:15px 20px;border-bottom:0}
+  .nav .btn{display:none}
+}
+@media(max-width:700px){
+  :root{--rail:44px;--sec-pad:20px}
+  .sec-main{padding:36px var(--sec-pad) 42px}
+  .hero .sec-main{padding-top:36px}
+  .sec-rail{padding-top:22px}
+  .sec-rail .fig{font-size:10px}
+}
+
+
+/* ===========================================================================
+   MOTION — the drawings draw themselves, then the mechanism works.
+
+   The rule that keeps this safe: everything below is *additive*. The resting
+   CSS renders every drawing finished and visible. Motion.tsx sets
+   data-motion="on", and only then does anything get hidden so it can be
+   animated in. No JS, or reduced motion → a finished, static page.
+
+   Nothing that carries meaning as text is animated — only linework.
+   =========================================================================== */
+
+@media (prefers-reduced-motion: no-preference){
+
+  /* --- resting states, applied only once JS confirms motion is wanted --- */
+  :root[data-motion="on"] [data-animate] .d-draw{ stroke-dashoffset:1 }
+  :root[data-motion="on"] [data-animate] .d-fade{ opacity:0 }
+  :root[data-motion="on"] [data-animate] .d-grow{ transform:scaleX(0) }
+  :root[data-motion="on"] [data-animate="lever"] .lv-arm{ transform:rotate(11.3deg) }
+
+  /* --- the run --- */
+  :root[data-motion="on"] [data-animate].in-view .d-draw{
+    animation:dDraw .8s cubic-bezier(.65,0,.35,1) forwards;
+  }
+  :root[data-motion="on"] [data-animate].in-view .d-fade{
+    animation:dFade .5s ease forwards;
+  }
+  :root[data-motion="on"] [data-animate].in-view .d-grow{
+    animation:dGrow .7s cubic-bezier(.65,0,.35,1) forwards;
+  }
+
+  /* ---------------------------------------------------- FIG. 01 · lever ---
+     Sequence: sheet, ground, fulcrum, bar — then the effort strikes and the
+     arm swings, lifting the load. Annotations land last, the way a drafter
+     dimensions a drawing after the geometry is settled. */
+  :root[data-motion="on"] .lever.in-view .lv-frame  { animation-delay:0s }
+  :root[data-motion="on"] .lever.in-view .lv-ground { animation-delay:.12s }
+  :root[data-motion="on"] .lever.in-view .lv-fulcrum{ animation-delay:.45s }
+  :root[data-motion="on"] .lever.in-view .lv-bar    { animation-delay:.55s }
+  :root[data-motion="on"] .lever.in-view .lv-load   { animation-delay:1s }
+  :root[data-motion="on"] .lever.in-view .lv-effort {
+    animation:dStrike .55s cubic-bezier(.5,0,.2,1) 1.15s forwards;
+  }
+  :root[data-motion="on"] .lever.in-view .lv-arm{
+    animation:dLift .9s cubic-bezier(.34,1.2,.5,1) 1.45s forwards;
+  }
+  :root[data-motion="on"] .lever.in-view .lv-dims  { animation-delay:2.1s }
+  :root[data-motion="on"] .lever.in-view .lv-notes { animation-delay:2.25s }
+  :root[data-motion="on"] .lever.in-view .lv-title { animation-delay:2.4s }
+
+  :root[data-motion="on"] .lever .lv-arm{
+    transform-box:view-box;
+    transform-origin:350px 175px;   /* the fulcrum apex */
+  }
+
+  /* ------------------------------------------------ FIG. 04 · timeline --- */
+  :root[data-motion="on"] .timeline .d-grow{
+    transform-box:fill-box;
+    transform-origin:left center;
+  }
+  :root[data-motion="on"] .timeline.in-view .d-grow:nth-of-type(1){ animation-delay:0s }
+  :root[data-motion="on"] .timeline.in-view .d-grow:nth-of-type(2){ animation-delay:.14s }
+  :root[data-motion="on"] .timeline.in-view .d-grow:nth-of-type(3){ animation-delay:.28s }
+  :root[data-motion="on"] .timeline.in-view .d-grow:nth-of-type(4){ animation-delay:.42s }
+  :root[data-motion="on"] .timeline.in-view .tl-marks{ animation-delay:.72s }
+
+  /* ----------------------------------------------- FIG. 05 · schematic ---
+     The argument, in order: the mess accumulates, then the clean line
+     replaces it. Red finishes before blue starts — that gap is the point. */
+  :root[data-motion="on"] .schematic.in-view .sc-label     { animation-delay:0s }
+  :root[data-motion="on"] .schematic.in-view .sc-before    { animation-delay:.15s }
+  :root[data-motion="on"] .schematic.in-view .sc-tangle .d-draw:nth-of-type(1){ animation-delay:.35s }
+  :root[data-motion="on"] .schematic.in-view .sc-tangle .d-draw:nth-of-type(2){ animation-delay:.5s }
+  :root[data-motion="on"] .schematic.in-view .sc-tangle .d-draw:nth-of-type(3){ animation-delay:.65s }
+  :root[data-motion="on"] .schematic.in-view .sc-tangle .d-draw:nth-of-type(4){ animation-delay:.8s }
+  :root[data-motion="on"] .schematic.in-view .sc-tangle .d-draw:nth-of-type(5){ animation-delay:.95s }
+  :root[data-motion="on"] .schematic.in-view .sc-loop      { animation-delay:1.15s }
+  :root[data-motion="on"] .schematic.in-view .sc-before-dim{ animation-delay:1.3s }
+  :root[data-motion="on"] .schematic.in-view .sc-divider   { animation-delay:1.5s }
+  :root[data-motion="on"] .schematic.in-view .sc-after     { animation-delay:1.7s }
+  :root[data-motion="on"] .schematic.in-view .sc-flow .d-draw:nth-of-type(1){ animation-delay:1.9s }
+  :root[data-motion="on"] .schematic.in-view .sc-flow .d-draw:nth-of-type(2){ animation-delay:2.02s }
+  :root[data-motion="on"] .schematic.in-view .sc-flow .d-draw:nth-of-type(3){ animation-delay:2.14s }
+  :root[data-motion="on"] .schematic.in-view .sc-after-dim { animation-delay:2.3s }
+}
+
+@keyframes dDraw  { from{ stroke-dashoffset:1 } to{ stroke-dashoffset:0 } }
+@keyframes dFade  { from{ opacity:0 }          to{ opacity:1 } }
+@keyframes dGrow  { from{ transform:scaleX(0) } to{ transform:scaleX(1) } }
+@keyframes dLift  { from{ transform:rotate(11.3deg) } to{ transform:rotate(0deg) } }
+@keyframes dStrike{
+  from{ opacity:0; transform:translateY(-9px) }
+  60% { opacity:1 }
+  to  { opacity:1; transform:translateY(0) }
+}
+
+/* the dash pattern itself is always present, so a finished path renders solid */
+.d-draw{ stroke-dasharray:1 }
+.lv-effort{ transform-box:view-box }
+
+/* ---------------------------------------------------- micro-interactions -
+   Hover only, so they cost nothing at rest and the reduced-motion rule
+   already disables the transitions. */
+.mark-bar{ transition:transform .35s cubic-bezier(.34,1.3,.5,1); transform-box:view-box; transform-origin:23px 26px }
+.brand:hover .mark-bar{ transform:rotate(-7deg) }
+
+.part{ transition:background-color .2s ease, box-shadow .2s ease }
+.part:hover{ background:var(--panel-hi); box-shadow:inset 0 2px 0 var(--datum) }
+
+.tier{ transition:background-color .2s ease }
+.tier:hover{ background:var(--panel-hi) }
+
+.case-figures div{ transition:background-color .2s ease }
+.case-figures div:hover{ background:var(--panel-hi) }
+
+.loads li{ transition:background-color .18s ease }
+.loads li:hover{ background:var(--panel) }
+
+/* ----------------------------------------------------------------- print - */
+/* A drafting sheet should print like one. Ops leads print the pricing and
+   method sections to take into a meeting — make that come out clean. */
+@media print{
+  :root{--sec-pad:0;--rail:0}
+  body{background:#fff;color:#000;font-size:11pt;line-height:1.45}
+  .frame{background-image:none;background-color:#fff}
+  .nav,.nav-toggle,.theme-toggle,.skip,.hero-btns,.book-list,
+  .foot-social,.foot-col,.foot-blurb{display:none}
+  .sec{grid-template-columns:1fr;border-bottom:1px solid #999;break-inside:avoid}
+  .sec-rail{border-right:0;padding:14pt 0 0;align-items:flex-start}
+  .sec-rail .fig{writing-mode:horizontal-tb;color:#000;font-size:8pt}
+  .sec-main{padding:6pt 0 16pt}
+  .hero,.book,.part,.tier,.case,.case-head,.stats,.case-figures{background:#fff!important;color:#000!important}
+  .foot,.foot-plate,.foot-main,.foot-legal{background:#fff!important;padding-left:0;padding-right:0}
+  .foot-plate{grid-template-columns:repeat(4,1fr)}
+  .book h2,.book .lede,.book .label{color:#000!important}
+  h1{font-size:26pt}
+  h2{font-size:17pt}
+  .lede{font-size:12pt;color:#222}
+  .part,.tier,.step,.case{break-inside:avoid}
+  .dwg{max-width:150mm!important}
+  /* print the destination of every real link next to it */
+  a[href^="http"]::after,a[href^="mailto"]::after{content:" (" attr(href) ")";font-size:8pt;color:#444}
+}
+
+/* -------------------------------------------------------------- 404 page - */
+.notfound{max-width:640px;padding:20px 0 40px;display:flex;flex-direction:column;gap:20px}
+.notfound h2{margin:0}
+.notfound .lede{margin:0}
+.nf-dwg{max-width:380px;margin:4px 0}
