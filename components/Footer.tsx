@@ -86,8 +86,8 @@ export default function Footer() {
         <span>
           © {new Date().getFullYear()} {f.legal.entity}
         </span>
-        <span>{f.legal.registration}</span>
-        <span>{f.legal.tin}</span>
+        {f.legal.registration && <span>{f.legal.registration}</span>}
+        {f.legal.tin && <span>{f.legal.tin}</span>}
         <ul>
           {f.legal.links.map((link) => (
             <li key={link.label}>

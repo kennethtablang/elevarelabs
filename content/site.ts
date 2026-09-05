@@ -397,8 +397,12 @@ export const site = {
     legal: {
       /** ⚠ PLACEHOLDER — registered entity name and numbers */
       entity: "[Elevare Foundry Inc.]",
-      registration: "SEC Reg. No. [XXXXXXXXX]",
-      tin: "TIN [XXX-XXX-XXX-XXX]",
+      /* Left empty on purpose. The legal strip renders each of these only
+         when it has a value, so filling one in is the whole change. Worth
+         putting back once the company is registered — a Philippine buyer
+         doing due diligence looks for them. */
+      registration: "",
+      tin: "",
       /** ⚠ PLACEHOLDER — these pages do not exist yet. A privacy policy
        *  is a legal requirement once the booking form collects anything. */
       links: [
