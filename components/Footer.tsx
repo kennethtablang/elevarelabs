@@ -31,15 +31,19 @@ export default function Footer() {
           <p className="foot-tag">{site.tagline}</p>
           <p className="foot-blurb">{f.blurb}</p>
 
-          <ul className="foot-social">
-            {f.social.map((s) => (
-              <li key={s.label}>
-                <a href={s.href} target="_blank" rel="noreferrer noopener">
-                  {s.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+          {/* Renders only when there is something to render, so the list
+              stays empty until there is a real profile to point at. */}
+          {f.social.length > 0 && (
+            <ul className="foot-social">
+              {f.social.map((s) => (
+                <li key={s.label}>
+                  <a href={s.href} target="_blank" rel="noreferrer noopener">
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {f.columns.map((col) => (

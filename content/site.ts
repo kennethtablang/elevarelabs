@@ -305,9 +305,9 @@ export const site = {
       "The name is Latin. Elevāre, to lift, from levāre — to make light. Taking the weight off is the entire job description.",
     /** ⚠ PLACEHOLDER — fill in the bracketed values. */
     facts: [
-      { term: "Founded", value: "[YEAR]" },
-      { term: "Based", value: "[CITY]" },
-      { term: "Team", value: "[N] engineers and one process designer" },
+      { term: "Founded", value: "2025" },
+      { term: "Based", value: "Mandaluyong City" },
+      { term: "Team", value: "Three software engineers" },
       { term: "Stack", value: "Boring, documented, and chosen to outlive us" },
       { term: "Code", value: "You own it. Repository handed over on request." },
     ],
@@ -370,31 +370,25 @@ export const site = {
 
     contact: {
       heading: "Talk to us",
-      /** ⚠ PLACEHOLDER — real number, and a matching tel: href */
-      phone: "+63 [2] [XXXX XXXX]",
-      phoneHref: "tel:+63XXXXXXXXXX",
-      /** ⚠ PLACEHOLDER — registered office address */
+      phone: "+63 992 572 4664",
+      phoneHref: "tel:+639925724664",
+      /** ⚠ INCOMPLETE — city only. Add unit, street and barangay before
+       *  launch: a contact block that cannot be posted to reads as evasive. */
       addressLines: [
-        "[Unit / Floor, Building]",
-        "[Street], [Barangay]",
-        "[City], [Province] [Postcode]",
-        "Philippines",
+        "Mandaluyong City",
+        "Metro Manila, Philippines",
       ],
     },
 
-    /** ⚠ PLACEHOLDER — every href. Delete any account you do not have;
-     *  an empty profile is worse than no link at all. */
-    social: [
-      { label: "LinkedIn", href: "#" },
-      { label: "GitHub", href: "#" },
-      { label: "Facebook", href: "#" },
-      { label: "X", href: "#" },
-    ],
+    /* No social accounts listed on purpose. The footer renders this list
+       only when it has something in it, so adding a real profile here is
+       the whole change — nothing to un-hide. */
+    social: [] as { label: string; href: string }[],
 
     /* The title-block plate. Real, checkable facts a buyer wants before they
        write to you — not decoration. Keep it honest and keep it current. */
     plate: [
-      { term: "Office", value: "[City], Philippines" },
+      { term: "Office", value: "Mandaluyong City, Philippines" },
       { term: "Hours", value: "Mon–Fri · 09:00–18:00 PHT" },
       { term: "Response", value: "Within one business day" },
       { term: "Availability", value: "Taking new work for [Q0 20XX]" },
