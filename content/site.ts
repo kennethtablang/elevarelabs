@@ -403,12 +403,10 @@ export const site = {
          doing due diligence looks for them. */
       registration: "",
       tin: "",
-      /** ⚠ PLACEHOLDER — these pages do not exist yet. A privacy policy
-       *  is a legal requirement once the booking form collects anything. */
       links: [
-        { label: "Privacy policy", href: "#" },
-        { label: "Terms of service", href: "#" },
-        { label: "Accessibility", href: "#" },
+        { label: "Privacy notice", href: "/privacy" },
+        { label: "Terms of service", href: "/terms" },
+        { label: "Accessibility", href: "/accessibility" },
       ],
     },
   },

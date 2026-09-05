@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { site } from "@/content/site";
 import { Mark } from "./drawings";
 import ThemeToggle from "./ThemeToggle";
@@ -10,6 +11,13 @@ import ThemeToggle from "./ThemeToggle";
 export default function Nav() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>("");
+
+  /* The nav is a list of fragments — #build, #method — which point at nothing
+     on the appendix pages, where those sections do not exist. Off the home
+     page they have to be resolved against it, or every nav link is a dead
+     click that only changes the address bar. */
+  const onHome = usePathname() === "/";
+  const to = (href: string) => (onHome ? href : `/${href}`);
 
   /* Mark the section currently in view. Rootmargin pulls the trigger line
      down past the sticky nav so a section counts as "active" once its
@@ -48,7 +56,7 @@ export default function Nav() {
 
   return (
     <nav className="nav">
-      <a className="brand" href="#top">
+      <a className="brand" href={to("#top")}>
         <Mark />
         <b>{site.name}</b>
       </a>
@@ -68,7 +76,7 @@ export default function Nav() {
           return (
             <li key={item.href}>
               <a
-                href={item.href}
+                href={to(item.href)}
                 aria-current={active === id ? "true" : undefined}
                 onClick={() => setOpen(false)}
               >
