@@ -45,6 +45,13 @@
   --book-body:#C3C9C0;
   --book-n:#7C93E8;
 
+  /* Washes for the stepped read of FIG. 05 — a box being talked about is
+     filled, not outlined differently, so the linework stays one weight.
+     Derived, so both themes get them from their own --load/--datum/--panel-hi
+     without a second definition. */
+  --wash-load:color-mix(in srgb, var(--load) 15%, var(--panel-hi));
+  --wash-datum:color-mix(in srgb, var(--datum) 15%, var(--panel-hi));
+
   /* --- geometry --- */
   --unit:26px;            /* the grid module; all spacing is a multiple */
   --rail:104px;           /* the numbered FIG. rail */
@@ -359,25 +366,82 @@ a{color:var(--datum-ink)}
 .case-body{padding:26px 24px 24px}
 .case-brief{color:var(--graphite-2);font-size:16.5px}
 
-/* The case fold. Stacked by default — brief, drawing, caption. Past the fold
-   width the brief and its caption move into a note column on the left and the
-   drawing takes the rest, because a 1040px figure inside a 1555px panel leaves
-   half a metre of blank sheet on the right. The caption bottoms out against
-   the drawing, the way a title block sits under a figure. */
+/* The case fold. Stacked by default — note column, then drawing. Past the fold
+   width the note sits on the left and the drawing takes the rest, because a
+   1040px figure inside a 1555px panel leaves half a metre of blank sheet on
+   the right. The caption is pushed to the foot of the note column, so on a
+   case with no steps it bottoms out level with the drawing, the way a title
+   block sits under a figure. */
 .case-fold{display:grid;gap:20px}
-.case-fold .dwg-cap{margin-top:0}
+.case-note{display:flex;flex-direction:column;gap:20px;min-width:0}
+.case-fold .dwg-cap{margin-top:auto}
 .case-plate{min-width:0}
 .case-plate .dwg{max-width:1180px;margin-inline:auto}
 @media(min-width:1360px){
   .case-fold{
     grid-template-columns:minmax(300px,.42fr) minmax(0,1fr);
-    grid-template-rows:auto 1fr;
-    grid-template-areas:"brief plate" "cap plate";
-    column-gap:38px;row-gap:16px;align-items:start;
+    column-gap:38px;align-items:stretch;
   }
-  .case-fold .case-brief{grid-area:brief}
-  .case-fold .case-plate{grid-area:plate}
-  .case-fold .dwg-cap{grid-area:cap;align-self:end}
+  .case-plate{align-self:start}
+}
+
+/* ------------------------------------------------------- the stepped read -
+   The figure is an argument in five moves, and a reader who meets it whole
+   has to work out the order for themselves. So the steps walk it: the drawing
+   pins, each step lights the part of it being described, and the last step
+   hands over to the blue half.
+
+   Everything here is inert until CaseSteps.tsx adds .case-steps-on, which it
+   only does above the fold width. Without JS this is a numbered list under a
+   paragraph beside a finished drawing — which is the whole case, in order,
+   just without the pinning. */
+.case-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px}
+.case-step{
+  padding-left:17px;border-left:1px solid var(--rule-soft);
+}
+.case-step .n{
+  display:block;margin-bottom:7px;
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--graphite-3);
+}
+.case-step p{font-size:15.5px;line-height:1.6;color:var(--graphite-2);max-width:none}
+
+@media(min-width:1360px){
+  /* Each step gets most of a screen, so scrolling advances the read one move
+     at a time instead of flickering through all five. */
+  .case-steps-on .case-steps{gap:0}
+  .case-steps-on .case-step{
+    min-height:58vh;display:flex;flex-direction:column;justify-content:center;
+  }
+  /* The first one starts short: it follows the brief directly, and a full
+     block here opens half a screen of nothing between the two. */
+  .case-steps-on .case-step:first-child{min-height:34vh}
+  .case-steps-on .case-plate{position:sticky;top:calc(var(--nav-h) + 30px)}
+}
+
+/* The step you are reading is the one that isn't greyed back. */
+.case-steps-on .case-step{opacity:.38}
+.case-steps-on .case-step.is-on{opacity:1;border-left-color:var(--datum)}
+
+/* And in the drawing: the half being discussed is up, the other is held back,
+   and the boxes named by this step are filled. These land on .sc-half and
+   .sc-node, which nothing animates — an animation beats a plain declaration
+   for the same property, so the reveal and the stepped read have to stay off
+   each other's elements. */
+.case-steps-on .sc-half[data-half="after"]{opacity:.2}
+.case-steps-on[data-step="5"] .sc-half[data-half="after"]{opacity:1}
+.case-steps-on[data-step="5"] .sc-half[data-half="before"]{opacity:.2}
+
+.case-steps-on[data-step="1"] .sc-node[data-at="1"] rect{fill:var(--wash-load)}
+.case-steps-on[data-step="2"] .sc-node[data-at="2"] rect{fill:var(--wash-load)}
+.case-steps-on[data-step="3"] .sc-node[data-at="3"] rect{fill:var(--wash-load)}
+.case-steps-on[data-step="4"] .sc-node[data-at="4"] rect{fill:var(--wash-load)}
+.case-steps-on[data-step="5"] .sc-node[data-at="5"] rect{fill:var(--wash-datum)}
+
+@media (prefers-reduced-motion: no-preference){
+  .case-steps-on .case-step{transition:opacity .35s ease,border-color .35s ease}
+  .case-steps-on .sc-half{transition:opacity .45s ease}
+  .case-steps-on .sc-node rect{transition:fill .45s ease}
 }
 .case-figures{display:flex;border:1px solid var(--rule-soft);margin-top:22px;background:var(--panel)}
 .case-figures div{flex:1;padding:15px 18px;border-right:1px solid var(--rule-soft)}
@@ -655,12 +719,25 @@ a{color:var(--datum-ink)}
 
      The timeline is the figure's own view progress. `cover` runs from the
      moment the plate's top crosses the bottom of the viewport (0%) to the
-     moment its bottom clears the top (100%); the figure is fully on screen
-     from roughly 26% to 74%, so the whole sequence is spent between 22% and
-     66% and finishes while it is still comfortably in the middle of the
-     screen. Every rule below restates the `.in-view` selector's shape so it
-     wins on source order and zeroes the timed delay it would otherwise
-     inherit — `animation-range` is the delay now.
+     moment its bottom clears the top (100%). Every rule below restates the
+     `.in-view` selector's shape so it wins on source order and zeroes the
+     timed delay it would otherwise inherit — `animation-range` is the delay
+     now.
+
+     Which element the timeline is measured on matters more than it looks.
+     Below the fold width it is the plate, which scrolls normally. Above it,
+     the plate is pinned for the stepped read, and a pinned box's progress
+     through the scrollport is no longer a clean function of scroll — measured
+     on it, the reveal crawls and was still drawing itself three steps into
+     the read. So in the fold the timeline is handed to the brief, which sits
+     directly above the figure, is always in normal flow, and whose progress
+     depends on nothing but viewport height.
+
+     Either way the sequence is spent between cover 13% and 46.5%, which puts
+     it in the same place on screen for both: it starts as the figure enters
+     from the bottom and is finished with the figure around the middle —
+     before the first step reaches the band that activates it, so the drawing
+     is complete by the time the stepped read takes over.
 
      Browsers without scroll-driven animations never enter this block and keep
      the IntersectionObserver one-shot above. Both paths are still inside
@@ -668,6 +745,15 @@ a{color:var(--datum-ink)}
   @supports (animation-timeline:view()){
 
     :root[data-motion="on"] .case-plate{ view-timeline:--fig05 block }
+
+    /* In the fold the plate pins, so measure the brief instead and publish
+       the timeline to the whole fold — the drawing is not an ancestor of the
+       brief, so it needs timeline-scope to see it. */
+    @media(min-width:1360px){
+      :root[data-motion="on"] .case-fold { timeline-scope:--fig05 }
+      :root[data-motion="on"] .case-plate{ view-timeline:none }
+      :root[data-motion="on"] .case-brief{ view-timeline:--fig05 block }
+    }
 
     /* Named, not gated on .in-view: the drawing must reveal itself from the
        timeline alone, or a figure whose observer never fires stays blank. */
@@ -690,62 +776,62 @@ a{color:var(--datum-ink)}
 
     /* the mess accumulates */
     :root[data-motion="on"] .case-plate .schematic .sc-label{
-      animation-delay:0s; animation-range:cover 22% cover 26%;
+      animation-delay:0s; animation-range:cover 13% cover 16%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-before{
-      animation-delay:0s; animation-range:cover 24% cover 30%;
+      animation-delay:0s; animation-range:cover 15% cover 20%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-tangle{
-      animation-delay:0s; animation-range:cover 27% cover 29%;
+      animation-delay:0s; animation-range:cover 18% cover 19.5%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(1){
-      animation-delay:0s; animation-range:cover 28% cover 32%;
+      animation-delay:0s; animation-range:cover 19% cover 22%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(2){
-      animation-delay:0s; animation-range:cover 31% cover 35%;
+      animation-delay:0s; animation-range:cover 21.5% cover 24.5%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(3){
-      animation-delay:0s; animation-range:cover 34% cover 38%;
+      animation-delay:0s; animation-range:cover 24% cover 27%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(4){
-      animation-delay:0s; animation-range:cover 37% cover 41%;
+      animation-delay:0s; animation-range:cover 26.5% cover 29.5%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-tangle .d-draw:nth-of-type(5){
-      animation-delay:0s; animation-range:cover 40% cover 44%;
+      animation-delay:0s; animation-range:cover 29% cover 32%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-loop{
-      animation-delay:0s; animation-range:cover 43% cover 47%;
+      animation-delay:0s; animation-range:cover 31.5% cover 34%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-before-dim{
-      animation-delay:0s; animation-range:cover 45% cover 50%;
+      animation-delay:0s; animation-range:cover 33% cover 36%;
     }
 
     /* the gap — red is finished before blue starts */
     :root[data-motion="on"] .case-plate .schematic .sc-divider{
-      animation-delay:0s; animation-range:cover 49% cover 53%;
+      animation-delay:0s; animation-range:cover 35.5% cover 37.5%;
     }
 
     /* the clean line replaces it */
     :root[data-motion="on"] .case-plate .schematic .sc-label--after{
-      animation-delay:0s; animation-range:cover 52% cover 55%;
+      animation-delay:0s; animation-range:cover 37% cover 39%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-after{
-      animation-delay:0s; animation-range:cover 53% cover 57%;
+      animation-delay:0s; animation-range:cover 38% cover 40.5%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-flow{
-      animation-delay:0s; animation-range:cover 55% cover 56%;
+      animation-delay:0s; animation-range:cover 39.5% cover 40.5%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-flow .d-draw:nth-of-type(1){
-      animation-delay:0s; animation-range:cover 56% cover 58%;
+      animation-delay:0s; animation-range:cover 40.5% cover 41.8%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-flow .d-draw:nth-of-type(2){
-      animation-delay:0s; animation-range:cover 58% cover 60%;
+      animation-delay:0s; animation-range:cover 41.8% cover 43%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-flow .d-draw:nth-of-type(3){
-      animation-delay:0s; animation-range:cover 60% cover 62%;
+      animation-delay:0s; animation-range:cover 43% cover 44.2%;
     }
     :root[data-motion="on"] .case-plate .schematic .sc-after-dim{
-      animation-delay:0s; animation-range:cover 62% cover 66%;
+      animation-delay:0s; animation-range:cover 44% cover 46.5%;
     }
   }
 }

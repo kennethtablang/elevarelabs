@@ -203,73 +203,106 @@ export function CaseSchematic() {
         </marker>
       </defs>
 
-      <text className="t-red d-fade sc-label" x="20" y="16">BEFORE</text>
-      <text className="t-blue d-fade sc-label sc-label--after" x="392" y="16">AFTER</text>
       <line className="dim d-fade sc-divider" x1="360" y1="24" x2="360" y2="200" />
 
-      {/* BEFORE — the tangle */}
-      <g className="red d-fade sc-tangle" markerEnd="url(#arRed)">
-        <path className="d-draw" pathLength="1" d="M98 54 L146 48" />
-        <path className="d-draw" pathLength="1" d="M228 48 L244 68" />
-        <path className="d-draw" pathLength="1" d="M246 88 C182 104 140 112 108 130" />
-        <path className="d-draw" pathLength="1" d="M62 148 C64 168 96 168 146 166" />
-        <path className="d-draw" pathLength="1" d="M228 166 L246 146" />
-      </g>
-      <path className="red d-fade sc-loop" d="M286 122 L286 100" strokeDasharray="4 3" markerEnd="url(#arRed)" />
-      <text className="t-red d-fade sc-loop" x="294" y="112">×3</text>
+      {/* BEFORE — the tangle.
 
-      <g className="st d-fade sc-before">
-        <rect className="sheetf" x="22" y="40" width="76" height="28" />
-        <rect className="sheetf" x="150" y="34" width="76" height="28" />
-        <rect className="sheetf" x="248" y="70" width="76" height="28" />
-        <rect className="sheetf" x="24" y="118" width="76" height="28" />
-        <rect className="sheetf" x="150" y="152" width="76" height="28" />
-        <rect className="sheetf" x="248" y="122" width="76" height="28" />
-      </g>
-      <g textAnchor="middle" className="d-fade sc-before">
-        <text x="60" y="58">EMAIL IN</text>
-        <text x="188" y="52">RE-KEY</text>
-        <text x="286" y="88">SHEET v7</text>
-        <text x="62" y="136">PRINT</text>
-        <text x="188" y="170">SIGN</text>
-        <text x="286" y="140">RE-KEY</text>
-      </g>
+          .sc-half and .sc-node carry no animation of their own, and that is
+          the whole reason they exist: the reveal animates the groups nested
+          inside them, so the stepped read is free to set opacity and fill on
+          these without fighting a running animation for the same property.
+          An animation always wins over a plain declaration, so the two
+          systems have to touch different elements.
 
-      <g className="d-fade sc-before-dim">
-      <line className="dimline" x1="22" y1="205" x2="324" y2="205" />
-      <line className="dimline" x1="22" y1="199" x2="22" y2="211" />
-      <line className="dimline" x1="324" y1="199" x2="324" y2="211" />
-      <text className="t-red" x="173" y="226" textAnchor="middle">
-        11 DAYS · 4 HANDOFFS · 2 SYSTEMS OF RECORD
-      </text>
+          data-at is the step number in site.cases.items[].steps that lights
+          this node. Keep the two in step if you redraw the figure. */}
+      <g className="sc-half" data-half="before">
+        <text className="t-red d-fade sc-label" x="20" y="16">BEFORE</text>
+
+        <g className="red d-fade sc-tangle" markerEnd="url(#arRed)">
+          <path className="d-draw" pathLength="1" d="M98 54 L146 48" />
+          <path className="d-draw" pathLength="1" d="M228 48 L244 68" />
+          <path className="d-draw" pathLength="1" d="M246 88 C182 104 140 112 108 130" />
+          <path className="d-draw" pathLength="1" d="M62 148 C64 168 96 168 146 166" />
+          <path className="d-draw" pathLength="1" d="M228 166 L246 146" />
+        </g>
+        <path className="red d-fade sc-loop" d="M286 122 L286 100" strokeDasharray="4 3" markerEnd="url(#arRed)" />
+        <text className="t-red d-fade sc-loop" x="294" y="112">×3</text>
+
+        <g className="d-fade sc-before" textAnchor="middle">
+          <g className="sc-node" data-at="1">
+            <rect className="st sheetf" x="22" y="40" width="76" height="28" />
+            <text x="60" y="58">EMAIL IN</text>
+          </g>
+          <g className="sc-node" data-at="2">
+            <rect className="st sheetf" x="150" y="34" width="76" height="28" />
+            <text x="188" y="52">RE-KEY</text>
+          </g>
+          <g className="sc-node" data-at="2">
+            <rect className="st sheetf" x="248" y="70" width="76" height="28" />
+            <text x="286" y="88">SHEET v7</text>
+          </g>
+          <g className="sc-node" data-at="3">
+            <rect className="st sheetf" x="24" y="118" width="76" height="28" />
+            <text x="62" y="136">PRINT</text>
+          </g>
+          <g className="sc-node" data-at="3">
+            <rect className="st sheetf" x="150" y="152" width="76" height="28" />
+            <text x="188" y="170">SIGN</text>
+          </g>
+          <g className="sc-node" data-at="4">
+            <rect className="st sheetf" x="248" y="122" width="76" height="28" />
+            <text x="286" y="140">RE-KEY</text>
+          </g>
+        </g>
+
+        <g className="d-fade sc-before-dim">
+          <line className="dimline" x1="22" y1="205" x2="324" y2="205" />
+          <line className="dimline" x1="22" y1="199" x2="22" y2="211" />
+          <line className="dimline" x1="324" y1="199" x2="324" y2="211" />
+          <text className="t-red" x="173" y="226" textAnchor="middle">
+            11 DAYS · 4 HANDOFFS · 2 SYSTEMS OF RECORD
+          </text>
+        </g>
       </g>
 
       {/* AFTER — one line */}
-      <g className="blue d-fade sc-flow" markerEnd="url(#arBlue)">
-        <path className="d-draw" pathLength="1" d="M464 103 L474 103" />
-        <path className="d-draw" pathLength="1" d="M548 103 L558 103" />
-        <path className="d-draw" pathLength="1" d="M632 103 L642 103" />
-      </g>
-      <g className="blue d-fade sc-after">
-        <rect className="sheetf" x="392" y="88" width="72" height="30" />
-        <rect className="sheetf" x="476" y="88" width="72" height="30" />
-        <rect className="sheetf" x="560" y="88" width="72" height="30" />
-        <rect className="sheetf" x="644" y="88" width="72" height="30" />
-      </g>
-      <g textAnchor="middle" className="t-blue d-fade sc-after">
-        <text x="428" y="107">ORDER</text>
-        <text x="512" y="107">QUEUE</text>
-        <text x="596" y="107">APPROVE</text>
-        <text x="680" y="107">LEDGER</text>
-      </g>
+      <g className="sc-half" data-half="after">
+        <text className="t-blue d-fade sc-label sc-label--after" x="392" y="16">AFTER</text>
 
-      <g className="d-fade sc-after-dim">
-      <line className="dimline" x1="392" y1="205" x2="716" y2="205" />
-      <line className="dimline" x1="392" y1="199" x2="392" y2="211" />
-      <line className="dimline" x1="716" y1="199" x2="716" y2="211" />
-      <text className="t-blue" x="554" y="226" textAnchor="middle">
-        4 HOURS · 1 HANDOFF · 1 SYSTEM OF RECORD
-      </text>
+        <g className="blue d-fade sc-flow" markerEnd="url(#arBlue)">
+          <path className="d-draw" pathLength="1" d="M464 103 L474 103" />
+          <path className="d-draw" pathLength="1" d="M548 103 L558 103" />
+          <path className="d-draw" pathLength="1" d="M632 103 L642 103" />
+        </g>
+
+        <g className="d-fade sc-after" textAnchor="middle">
+          <g className="sc-node" data-at="5">
+            <rect className="blue sheetf" x="392" y="88" width="72" height="30" />
+            <text className="t-blue" x="428" y="107">ORDER</text>
+          </g>
+          <g className="sc-node" data-at="5">
+            <rect className="blue sheetf" x="476" y="88" width="72" height="30" />
+            <text className="t-blue" x="512" y="107">QUEUE</text>
+          </g>
+          <g className="sc-node" data-at="5">
+            <rect className="blue sheetf" x="560" y="88" width="72" height="30" />
+            <text className="t-blue" x="596" y="107">APPROVE</text>
+          </g>
+          <g className="sc-node" data-at="5">
+            <rect className="blue sheetf" x="644" y="88" width="72" height="30" />
+            <text className="t-blue" x="680" y="107">LEDGER</text>
+          </g>
+        </g>
+
+        <g className="d-fade sc-after-dim">
+          <line className="dimline" x1="392" y1="205" x2="716" y2="205" />
+          <line className="dimline" x1="392" y1="199" x2="392" y2="211" />
+          <line className="dimline" x1="716" y1="199" x2="716" y2="211" />
+          <text className="t-blue" x="554" y="226" textAnchor="middle">
+            4 HOURS · 1 HANDOFF · 1 SYSTEM OF RECORD
+          </text>
+        </g>
       </g>
     </svg>
   );

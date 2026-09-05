@@ -187,6 +187,38 @@ export const site = {
         schematic: true,
         caption:
           "Fig. 05a — Order-to-invoice path, before and after. Drawn from the client's own process map.",
+        /** The stepped read of the schematic. Each step pins the drawing and
+         *  lights the part of it being described, so the figure is read in the
+         *  order the work actually happened. `at` matches data-at on the node
+         *  groups in CaseSchematic — keep the two in step if you redraw it.
+         *  ⚠ PLACEHOLDER — same caveat as the case itself. */
+        steps: [
+          {
+            at: "1",
+            n: "01 · Intake",
+            body: "It starts in an inbox. Orders arrive as email, in whatever shape the customer felt like sending them, and the queue is whoever happens to be reading.",
+          },
+          {
+            at: "2",
+            n: "02 · Re-key",
+            body: "Someone retypes each one into a shared spreadsheet. There are seven versions of that file, and the live one is whichever was opened last.",
+          },
+          {
+            at: "3",
+            n: "03 · Paper approval",
+            body: "Approval is printed, signed by hand, and walked back to a desk. The only record that a decision happened is the piece of paper it happened on.",
+          },
+          {
+            at: "4",
+            n: "04 · Re-key, again",
+            body: "Then the same numbers are typed a second time into accounting, by a different person, into a different system. This is where the two systems of record start to disagree.",
+          },
+          {
+            at: "5",
+            n: "05 · The build",
+            body: "Six steps become four, in one system. An order becomes a queued job, gets approved in place, and lands in the ledger without anyone retyping anything.",
+          },
+        ],
         figures: [
           { value: "11 days", label: "Invoice cycle, before", tone: "was" as const },
           { value: "4 hours", label: "Invoice cycle, after", tone: "now" as const },
@@ -201,6 +233,7 @@ export const site = {
         body: "Dispatch ran on a whiteboard that was photographed each morning and posted to a group chat. Reschedules reached crews late or not at all, and the office learned a job was finished the following day — if someone remembered to say so.",
         schematic: false,
         caption: "",
+        steps: [],
         figures: [
           { value: "Next day", label: "Job status visibility, before", tone: "was" as const },
           { value: "Live", label: "Job status visibility, after", tone: "now" as const },

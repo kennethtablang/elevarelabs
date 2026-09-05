@@ -1,6 +1,7 @@
 import { site } from "@/content/site";
 import Nav from "@/components/Nav";
 import Motion from "@/components/Motion";
+import CaseSteps from "@/components/CaseSteps";
 import Footer from "@/components/Footer";
 import Section from "@/components/Section";
 import {
@@ -16,6 +17,7 @@ export default function Home() {
   return (
     <>
       <Motion />
+      <CaseSteps />
       <a className="skip" href="#main">Skip to content</a>
 
       <div className="frame">
@@ -130,7 +132,7 @@ export default function Home() {
             </div>
 
             {cases.items.map((c) => (
-              <article className="case" key={c.id}>
+              <article className="case" key={c.id} data-steps={c.steps.length || undefined}>
                 <div className="case-head">
                   <span className="id">{c.id}</span>
                   <h3>{c.title}</h3>
@@ -141,13 +143,34 @@ export default function Home() {
                     /* The drawing is the widest thing on the sheet. Past the
                        fold width it sits beside the brief instead of under it,
                        so a 1920 panel doesn't end in half a metre of blank
-                       paper to the right of the figure. */
+                       paper to the right of the figure — and once there is
+                       enough to scroll past, it pins while the steps walk
+                       through it. */
                     <div className="case-fold">
-                      <p className="case-brief">{c.body}</p>
+                      <div className="case-note">
+                        <p className="case-brief">{c.body}</p>
+
+                        {c.steps.length > 0 && (
+                          <ol className="case-steps">
+                            {c.steps.map((s) => (
+                              <li className="case-step" key={s.at} data-at={s.at}>
+                                {/* The step block is most of a screen tall, but
+                                    what the reader is looking at is this — so
+                                    this is what decides when the step is on. */}
+                                <div className="case-step-in">
+                                  <span className="n">{s.n}</span>
+                                  <p>{s.body}</p>
+                                </div>
+                              </li>
+                            ))}
+                          </ol>
+                        )}
+
+                        <p className="dwg-cap">{c.caption}</p>
+                      </div>
                       <div className="case-plate">
                         <CaseSchematic />
                       </div>
-                      <p className="dwg-cap">{c.caption}</p>
                     </div>
                   ) : (
                     <p className="case-brief">{c.body}</p>
